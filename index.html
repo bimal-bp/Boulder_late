@@ -1,1 +1,477 @@
-<h> hhd</h>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Entry/Exit Data</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #4a6fa5;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        
+        .stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+            justify-content: center;
+        }
+        
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            min-width: 150px;
+            text-align: center;
+            border-top: 4px solid #4a6fa5;
+        }
+        
+        .stat-card h3 {
+            font-size: 1.8rem;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .stat-card p {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .late-stat {
+            border-top-color: #e74c3c;
+        }
+        
+        .filter-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .filter-group label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        select, input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.95rem;
+        }
+        
+        .table-container {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background-color: #4a6fa5;
+            color: white;
+        }
+        
+        th {
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        tbody tr {
+            border-bottom: 1px solid #f1f1f1;
+            transition: background-color 0.2s;
+        }
+        
+        tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        td {
+            padding: 12px;
+            color: #444;
+        }
+        
+        .vehicle-no {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .late {
+            background-color: #ffeaea;
+            color: #d63031;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: inline-block;
+        }
+        
+        .time-diff-high {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+        
+        .time-diff-medium {
+            color: #f39c12;
+            font-weight: 600;
+        }
+        
+        .time-diff-low {
+            color: #27ae60;
+            font-weight: 600;
+        }
+        
+        .tonnage {
+            font-weight: 600;
+            color: #2980b9;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        @media (max-width: 768px) {
+            .filter-controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .filter-group {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            th, td {
+                padding: 10px 8px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .stats {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .stat-card {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Vehicle Entry/Exit Data</h1>
+            <p class="subtitle">Tracking vehicle movements with timestamps and tonnage information</p>
+        </header>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <h3 id="total-vehicles">0</h3>
+                <p>Total Records</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="late-count">0</h3>
+                <p>Late Departures</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="avg-time">0</h3>
+                <p>Avg. Time (min)</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="avg-tonnage">0</h3>
+                <p>Avg. Tonnage</p>
+            </div>
+            <div class="stat-card late-stat">
+                <h3 id="late-percent">0%</h3>
+                <p>Late Percentage</p>
+            </div>
+        </div>
+        
+        <div class="filter-controls">
+            <div class="filter-group">
+                <label for="time-filter">Time Filter:</label>
+                <select id="time-filter">
+                    <option value="all">All Times</option>
+                    <option value="morning">Morning (08:00-11:59)</option>
+                    <option value="afternoon">Afternoon (12:00-17:59)</option>
+                    <option value="evening">Evening (18:00-21:00)</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="vehicle-filter">Vehicle Filter:</label>
+                <input type="text" id="vehicle-filter" placeholder="Enter vehicle number...">
+            </div>
+            
+            <div class="filter-group">
+                <label for="late-filter">Show:</label>
+                <select id="late-filter">
+                    <option value="all">All Vehicles</option>
+                    <option value="late">Late Only</option>
+                    <option value="ontime">On Time Only</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table id="vehicle-table">
+                <thead>
+                    <tr>
+                        <th>Vehicle No.</th>
+                        <th>In Time</th>
+                        <th>Out Time</th>
+                        <th>Time Diff (min)</th>
+                        <th>Tonnage</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <!-- Data will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <footer>
+            <p>Vehicle Entry/Exit Data System | Data as per records</p>
+        </footer>
+    </div>
+
+    <script>
+        // Vehicle data
+        const vehicleData = [
+            {vehicleNo: "AP39U00095", inTime: "08:00", outTime: "08:09", timeDiff: 9, tonnage: 28, remarks: ""},
+            {vehicleNo: "AP39UW9881", inTime: "08:05", outTime: "08:14", timeDiff: 9, tonnage: 26, remarks: ""},
+            {vehicleNo: "AP39WF2057", inTime: "08:10", outTime: "08:18", timeDiff: 8, tonnage: 24, remarks: ""},
+            {vehicleNo: "AP39U00097", inTime: "08:15", outTime: "08:23", timeDiff: 8, tonnage: 27, remarks: ""},
+            {vehicleNo: "AP39UW4652", inTime: "08:20", outTime: "08:27", timeDiff: 7, tonnage: 28, remarks: ""},
+            {vehicleNo: "AP39WF2058", inTime: "08:25", outTime: "08:35", timeDiff: 10, tonnage: 22, remarks: "Late"},
+            {vehicleNo: "AP39UW4651", inTime: "08:30", outTime: "08:41", timeDiff: 11, tonnage: 21, remarks: "Late"},
+            {vehicleNo: "AP39WC0927", inTime: "08:35", outTime: "08:43", timeDiff: 8, tonnage: 28, remarks: ""},
+            {vehicleNo: "AP39WF2052", inTime: "08:40", outTime: "08:48", timeDiff: 8, tonnage: 28, remarks: ""},
+            {vehicleNo: "AP39U00095", inTime: "08:45", outTime: "08:53", timeDiff: 8, tonnage: 22, remarks: ""},
+            {vehicleNo: "AP39UW9880", inTime: "08:50", outTime: "09:01", timeDiff: 11, tonnage: 21, remarks: "Late"},
+            {vehicleNo: "AP39WC0926", inTime: "08:55", outTime: "09:03", timeDiff: 8, tonnage: 24, remarks: ""},
+            {vehicleNo: "AP39U00097", inTime: "09:00", outTime: "09:12", timeDiff: 12, tonnage: 24, remarks: "Late"},
+            {vehicleNo: "AP39UW9881", inTime: "09:05", outTime: "09:12", timeDiff: 7, tonnage: 26, remarks: ""},
+            {vehicleNo: "AP39WF2057", inTime: "09:10", outTime: "09:18", timeDiff: 8, tonnage: 24, remarks: ""},
+            {vehicleNo: "AP39UW4652", inTime: "09:15", outTime: "09:23", timeDiff: 8, tonnage: 26, remarks: ""},
+            {vehicleNo: "AP39WF2058", inTime: "09:20", outTime: "09:30", timeDiff: 10, tonnage: 23, remarks: "Late"},
+            {vehicleNo: "AP39UW4651", inTime: "09:25", outTime: "09:32", timeDiff: 7, tonnage: 21, remarks: ""},
+            {vehicleNo: "AP39WC0927", inTime: "09:30", outTime: "09:42", timeDiff: 12, tonnage: 21, remarks: "Late"},
+            {vehicleNo: "AP39WF2052", inTime: "09:35", outTime: "09:44", timeDiff: 9, tonnage: 25, remarks: ""},
+            {vehicleNo: "AP39U00095", inTime: "09:40", outTime: "09:50", timeDiff: 10, tonnage: 21, remarks: "Late"},
+            {vehicleNo: "AP39UW9880", inTime: "09:45", outTime: "09:56", timeDiff: 11, tonnage: 27, remarks: "Late"},
+            {vehicleNo: "AP39WC0926", inTime: "09:50", outTime: "09:57", timeDiff: 7, tonnage: 20, remarks: ""},
+            {vehicleNo: "AP39U00097", inTime: "09:55", outTime: "10:07", timeDiff: 12, tonnage: 24, remarks: "Late"},
+            {vehicleNo: "AP39UW9881", inTime: "10:00", outTime: "10:07", timeDiff: 7, tonnage: 22, remarks: ""},
+            {vehicleNo: "AP39WF2057", inTime: "10:05", outTime: "10:12", timeDiff: 7, tonnage: 20, remarks: ""},
+            {vehicleNo: "AP39UW4652", inTime: "10:10", outTime: "10:17", timeDiff: 7, tonnage: 21, remarks: ""},
+            {vehicleNo: "AP39WF2058", inTime: "10:15", outTime: "10:24", timeDiff: 9, tonnage: 24, remarks: ""},
+            {vehicleNo: "AP39UW4651", inTime: "10:20", outTime: "10:27", timeDiff: 7, tonnage: 21, remarks: ""},
+            {vehicleNo: "AP39U00095", inTime: "12:00", outTime: "12:09", timeDiff: 9, tonnage: 28, remarks: ""},
+            {vehicleNo: "AP39UW9881", inTime: "12:05", outTime: "12:17", timeDiff: 12, tonnage: 27, remarks: "Late"},
+            {vehicleNo: "AP39WF2057", inTime: "12:10", outTime: "12:17", timeDiff: 7, tonnage: 24, remarks: ""},
+            {vehicleNo: "AP39U00097", inTime: "12:15", outTime: "12:22", timeDiff: 7, tonnage: 28, remarks: ""},
+            {vehicleNo: "AP39UW4652", inTime: "13:00", outTime: "13:08", timeDiff: 8, tonnage: 21, remarks: ""},
+            {vehicleNo: "AP39WF2058", inTime: "13:05", outTime: "13:13", timeDiff: 8, tonnage: 23, remarks: ""},
+            {vehicleNo: "AP39UW4651", inTime: "13:10", outTime: "13:17", timeDiff: 7, tonnage: 21, remarks: ""},
+            {vehicleNo: "AP39WC0927", inTime: "14:00", outTime: "14:09", timeDiff: 9, tonnage: 20, remarks: ""},
+            {vehicleNo: "AP39WF2052", inTime: "14:05", outTime: "14:14", timeDiff: 9, tonnage: 22, remarks: ""},
+            {vehicleNo: "AP39U00095", inTime: "15:00", outTime: "15:09", timeDiff: 9, tonnage: 22, remarks: ""},
+            {vehicleNo: "AP39UW9880", inTime: "15:05", outTime: "15:17", timeDiff: 12, tonnage: 25, remarks: "Late"},
+            {vehicleNo: "AP39WC0926", inTime: "15:10", outTime: "15:18", timeDiff: 8, tonnage: 25, remarks: ""},
+            {vehicleNo: "AP39U00097", inTime: "15:15", outTime: "15:24", timeDiff: 9, tonnage: 25, remarks: ""},
+            {vehicleNo: "AP39UW9881", inTime: "15:20", outTime: "15:28", timeDiff: 8, tonnage: 21, remarks: ""},
+            {vehicleNo: "AP39WF2057", inTime: "16:00", outTime: "16:09", timeDiff: 9, tonnage: 25, remarks: ""},
+            {vehicleNo: "AP39UW4652", inTime: "16:05", outTime: "16:15", timeDiff: 10, tonnage: 26, remarks: "Late"},
+            {vehicleNo: "AP39WF2058", inTime: "16:10", outTime: "16:19", timeDiff: 9, tonnage: 22, remarks: ""},
+            {vehicleNo: "AP39UW4651", inTime: "16:15", outTime: "16:23", timeDiff: 8, tonnage: 21, remarks: ""},
+            {vehicleNo: "AP39WC0927", inTime: "16:20", outTime: "16:28", timeDiff: 8, tonnage: 25, remarks: ""},
+            {vehicleNo: "AP39UW4652", inTime: "19:00", outTime: "19:08", timeDiff: 8, tonnage: 23, remarks: ""},
+            {vehicleNo: "AP39WF2058", inTime: "19:05", outTime: "19:12", timeDiff: 7, tonnage: 23, remarks: ""},
+            {vehicleNo: "AP39UW4651", inTime: "19:10", outTime: "19:18", timeDiff: 8, tonnage: 23, remarks: ""},
+            {vehicleNo: "AP39WC0927", inTime: "19:15", outTime: "19:27", timeDiff: 12, tonnage: 23, remarks: "Late"}
+        ];
+        
+        // DOM elements
+        const tableBody = document.getElementById('table-body');
+        const totalVehiclesEl = document.getElementById('total-vehicles');
+        const lateCountEl = document.getElementById('late-count');
+        const avgTimeEl = document.getElementById('avg-time');
+        const avgTonnageEl = document.getElementById('avg-tonnage');
+        const latePercentEl = document.getElementById('late-percent');
+        const timeFilter = document.getElementById('time-filter');
+        const vehicleFilter = document.getElementById('vehicle-filter');
+        const lateFilter = document.getElementById('late-filter');
+        
+        // Initialize filtered data with all data
+        let filteredData = [...vehicleData];
+        
+        // Function to render table rows
+        function renderTable(data) {
+            tableBody.innerHTML = '';
+            
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                
+                // Determine timeDiff class based on value
+                let timeDiffClass = 'time-diff-low';
+                if (item.timeDiff >= 10) timeDiffClass = 'time-diff-high';
+                else if (item.timeDiff >= 8) timeDiffClass = 'time-diff-medium';
+                
+                // Create remarks HTML
+                const remarksHtml = item.remarks === "Late" 
+                    ? '<span class="late">Late</span>' 
+                    : '<span style="color: #7f8c8d;">On Time</span>';
+                
+                row.innerHTML = `
+                    <td class="vehicle-no">${item.vehicleNo}</td>
+                    <td>${item.inTime}</td>
+                    <td>${item.outTime}</td>
+                    <td class="${timeDiffClass}">${item.timeDiff}</td>
+                    <td class="tonnage">${item.tonnage}</td>
+                    <td>${remarksHtml}</td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            updateStats(data);
+        }
+        
+        // Function to update statistics
+        function updateStats(data) {
+            const total = data.length;
+            const lateCount = data.filter(item => item.remarks === "Late").length;
+            const avgTime = total > 0 
+                ? (data.reduce((sum, item) => sum + item.timeDiff, 0) / total).toFixed(1)
+                : 0;
+            const avgTonnage = total > 0 
+                ? (data.reduce((sum, item) => sum + item.tonnage, 0) / total).toFixed(1)
+                : 0;
+            const latePercent = total > 0 
+                ? ((lateCount / total) * 100).toFixed(1)
+                : 0;
+            
+            totalVehiclesEl.textContent = total;
+            lateCountEl.textContent = lateCount;
+            avgTimeEl.textContent = avgTime;
+            avgTonnageEl.textContent = avgTonnage;
+            latePercentEl.textContent = `${latePercent}%`;
+        }
+        
+        // Function to filter data based on selected filters
+        function filterData() {
+            const timeValue = timeFilter.value;
+            const vehicleValue = vehicleFilter.value.trim().toUpperCase();
+            const lateValue = lateFilter.value;
+            
+            filteredData = vehicleData.filter(item => {
+                // Time filter
+                if (timeValue !== "all") {
+                    const hour = parseInt(item.inTime.split(':')[0]);
+                    
+                    if (timeValue === "morning" && (hour < 8 || hour >= 12)) return false;
+                    if (timeValue === "afternoon" && (hour < 12 || hour >= 18)) return false;
+                    if (timeValue === "evening" && (hour < 18 || hour > 21)) return false;
+                }
+                
+                // Vehicle filter
+                if (vehicleValue && !item.vehicleNo.includes(vehicleValue)) return false;
+                
+                // Late filter
+                if (lateValue === "late" && item.remarks !== "Late") return false;
+                if (lateValue === "ontime" && item.remarks === "Late") return false;
+                
+                return true;
+            });
+            
+            renderTable(filteredData);
+        }
+        
+        // Initialize the table with all data
+        renderTable(vehicleData);
+        
+        // Add event listeners to filters
+        timeFilter.addEventListener('change', filterData);
+        vehicleFilter.addEventListener('input', filterData);
+        lateFilter.addEventListener('change', filterData);
+        
+        // Add a little animation to stat cards on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>
